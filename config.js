@@ -100,6 +100,40 @@ module.exports = {
     ],
   },
 
+  // Hacker News settings (Algolia Search API — no auth needed)
+  hackernews: {
+    baseUrl: "https://hn.algolia.com/api/v1",
+    resultsPerKeyword: 20,
+  },
+
+  // Lemmy settings (federated Reddit alternative — no auth needed)
+  lemmy: {
+    instance: "https://lemmy.world",
+    communities: {
+      general: ["technology", "asklemmy"],
+      realEstate: ["realestate", "homeowners"],
+      gardening: ["gardening", "homesteading", "permaculture"],
+      lifestyle: ["personalfinance", "homeimprovement", "interiordesign"],
+    },
+    postsPerCommunity: 15,
+  },
+
+  // Stack Exchange settings (free API — optional key for higher rate limit)
+  stackexchange: {
+    baseUrl: "https://api.stackexchange.com/2.3",
+    sites: ["diy", "gardening", "money", "softwarerecs", "webapps"],
+    questionsPerSite: 20,
+    apiKey: process.env.STACKEXCHANGE_API_KEY || null,
+  },
+
+  // Product Hunt settings (requires free OAuth app registration)
+  producthunt: {
+    apiUrl: "https://api.producthunt.com/v2/api/graphql",
+    clientId: process.env.PRODUCTHUNT_CLIENT_ID || null,
+    clientSecret: process.env.PRODUCTHUNT_CLIENT_SECRET || null,
+    postsPerQuery: 20,
+  },
+
   // Classifier settings
   classifier: {
     batchSize: 50,
@@ -117,6 +151,10 @@ module.exports = {
     general_subreddit: 5,
     x: 4,
     tiktok: 3,
+    hackernews: 7,
+    lemmy: 7,
+    stackexchange: 8,
+    producthunt: 6,
   },
 
   // Which subreddits count as "niche" vs "general" vs "idea"
