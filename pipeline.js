@@ -12,7 +12,11 @@
 const cron = require("node-cron");
 const config = require("./config");
 
-const redditCollector = require("./collectors/reddit");
+// Reddit collector is optional — requires API credentials
+// that need pre-approval from Reddit (Responsible Builder Policy)
+let redditCollector;
+try { redditCollector = require("./collectors/reddit"); } catch (e) { /* skip */ }
+
 const appstoreCollector = require("./collectors/appstore");
 const twitterCollector = require("./collectors/twitter");
 const tiktokCollector = require("./collectors/tiktok");
@@ -21,7 +25,7 @@ const scorer = require("./scorer");
 
 async function runPipeline(options = {}) {
   const startTime = Date.now();
-  const platforms = options.platforms || ["reddit", "appstore", "twitter", "tiktok"];
+  const platforms = options.platforms || ["appstore", "twitter", "tiktok"];
 
   console.log("");
   console.log("  ╔══════════════════════════════════════╗");
@@ -32,8 +36,12 @@ async function runPipeline(options = {}) {
   const results = { collected: 0, classified: 0, trends: 0 };
 
   if (platforms.includes("reddit")) {
-    try { results.collected += await redditCollector.collect(); } catch (e) {
-      console.error("  [Pipeline] Reddit collector error:", e.message);
+    if (!redditCollector) {
+      console.log("  [Pipeline] Reddit skipped — collector not available (needs API credentials)");
+    } else {
+      try { results.collected += await redditCollector.collect(); } catch (e) {
+        console.error("  [Pipeline] Reddit collector error:", e.message);
+      }
     }
   }
   if (platforms.includes("appstore")) {
