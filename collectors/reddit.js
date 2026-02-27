@@ -9,7 +9,10 @@
 // it our app credentials and it manages tokens automatically.
 // ============================================================
 
-const Snoowrap = require("snoowrap");
+// snoowrap is optional — Reddit API requires pre-approval (Responsible Builder Policy)
+let Snoowrap;
+try { Snoowrap = require("snoowrap"); } catch (e) { /* not installed */ }
+
 const db = require("../db");
 const config = require("../config");
 
