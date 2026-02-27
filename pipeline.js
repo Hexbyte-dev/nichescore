@@ -20,12 +20,16 @@ try { redditCollector = require("./collectors/reddit"); } catch (e) { /* skip */
 const appstoreCollector = require("./collectors/appstore");
 const twitterCollector = require("./collectors/twitter");
 const tiktokCollector = require("./collectors/tiktok");
+const hackernewsCollector = require("./collectors/hackernews");
+const lemmyCollector = require("./collectors/lemmy");
+const stackexchangeCollector = require("./collectors/stackexchange");
+const producthuntCollector = require("./collectors/producthunt");
 const classifier = require("./classifier");
 const scorer = require("./scorer");
 
 async function runPipeline(options = {}) {
   const startTime = Date.now();
-  const platforms = options.platforms || ["appstore", "twitter", "tiktok"];
+  const platforms = options.platforms || ["appstore", "twitter", "tiktok", "hackernews", "lemmy", "stackexchange", "producthunt"];
 
   console.log("");
   console.log("  ╔══════════════════════════════════════╗");
@@ -57,6 +61,26 @@ async function runPipeline(options = {}) {
   if (platforms.includes("tiktok")) {
     try { results.collected += await tiktokCollector.collect(); } catch (e) {
       console.error("  [Pipeline] TikTok collector error:", e.message);
+    }
+  }
+  if (platforms.includes("hackernews")) {
+    try { results.collected += await hackernewsCollector.collect(); } catch (e) {
+      console.error("  [Pipeline] Hacker News collector error:", e.message);
+    }
+  }
+  if (platforms.includes("lemmy")) {
+    try { results.collected += await lemmyCollector.collect(); } catch (e) {
+      console.error("  [Pipeline] Lemmy collector error:", e.message);
+    }
+  }
+  if (platforms.includes("stackexchange")) {
+    try { results.collected += await stackexchangeCollector.collect(); } catch (e) {
+      console.error("  [Pipeline] Stack Exchange collector error:", e.message);
+    }
+  }
+  if (platforms.includes("producthunt")) {
+    try { results.collected += await producthuntCollector.collect(); } catch (e) {
+      console.error("  [Pipeline] Product Hunt collector error:", e.message);
     }
   }
 

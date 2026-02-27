@@ -38,6 +38,10 @@ function getSourceQuality(platform, metadata) {
     const tier = metadata?.tier || "niche_subreddit";
     return config.sourceWeights[tier] || config.sourceWeights.niche_subreddit;
   }
+  if (platform === "hackernews") return config.sourceWeights.hackernews;
+  if (platform === "lemmy") return config.sourceWeights.lemmy;
+  if (platform === "stackexchange") return config.sourceWeights.stackexchange;
+  if (platform === "producthunt") return config.sourceWeights.producthunt;
   return 5;
 }
 
