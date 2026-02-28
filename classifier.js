@@ -15,9 +15,17 @@ const config = require("./config");
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+function stripHtml(text) {
+  return text
+    .replace(/<[^>]+>/g, " ")    // remove HTML tags
+    .replace(/&[a-z]+;/gi, " ")  // remove HTML entities (&amp; etc.)
+    .replace(/\s+/g, " ")        // collapse whitespace
+    .trim();
+}
+
 function buildClassifierPrompt(posts) {
   const numbered = posts
-    .map((p, i) => `${i + 1}. "${p.content.slice(0, 500)}"`)
+    .map((p, i) => `${i + 1}. "${stripHtml(p.content).slice(0, 300)}"`)
     .join("\n\n");
 
   return `You are a problem classifier for market research. For each numbered post below, determine if it describes a real problem that could be solved by a mobile or web app.
@@ -86,7 +94,7 @@ async function classifyBatch(posts) {
 
   const response = await anthropic.messages.create({
     model: config.classifier.model,
-    max_tokens: 4096,
+    max_tokens: 8192,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -110,7 +118,18 @@ async function classify() {
       console.log(`  [Classifier] Batch done: ${saved}/${posts.length} classified`);
     } catch (err) {
       console.error("  [Classifier] Batch failed:", err.message);
-      break;
+      // Skip this batch and try the next one instead of stopping
+      // Mark these posts as unclassifiable so we don't retry forever
+      for (const post of posts) {
+        try {
+          await db.query(
+            `INSERT INTO scored_problems (raw_post_id, category, subcategory, sentiment_score, is_app_solvable, summary)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [post.id, "unclassified", "parse_error", 1, false, "Classifier could not parse this post"]
+          );
+        } catch (e) { /* skip duplicates */ }
+      }
+      console.log(`  [Classifier] Skipped ${posts.length} posts, continuing...`);
     }
   }
 

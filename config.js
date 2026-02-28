@@ -136,7 +136,7 @@ module.exports = {
 
   // Classifier settings
   classifier: {
-    batchSize: 50,
+    batchSize: 25,
     model: "claude-haiku-4-5-20251001",
     mergeModel: "claude-sonnet-4-5-20241022",
     mergeThreshold: 500,
